@@ -36,10 +36,19 @@ class ResultTableView : public Fl_Table {
   // Draw the cell data
   //    Dark gray text on white background with subtle border
   //
-  void DrawData(const char *s, int X, int Y, int W, int H) {
+  void DrawData(const char *s, int X, int Y, int W, int H, int pass) {
     fl_push_clip(X,Y,W,H);
       // Draw cell bg
-      fl_color(FL_WHITE); fl_rectf(X,Y,W,H);
+      if( pass )
+      {
+        fl_color(FL_WHITE);
+        fl_rectf(X,Y,W,H);
+      }
+      else
+      {
+        fl_color(FL_RED);
+        fl_rectf(X,Y,W,H);
+      }
       // Draw cell data
       fl_color(FL_GRAY0); fl_draw(s, X,Y,W,H, FL_ALIGN_CENTER);
       // Draw box border
@@ -52,6 +61,8 @@ class ResultTableView : public Fl_Table {
   //
   void draw_cell(TableContext context, int ROW=0, int COL=0, int X=0, int Y=0, int W=0, int H=0) {
     static char s[40];
+    int pass = 1;
+
     switch ( context ) {
       case CONTEXT_STARTPAGE:                   // before page is drawn..
         fl_font(FL_HELVETICA, 16);              // set the font for our drawing operations
@@ -64,9 +75,12 @@ class ResultTableView : public Fl_Table {
         DrawHeader(s,X,Y,W,H);
         return;
       case CONTEXT_CELL:                        // Draw data in cells
+      {
         s[0] = 0;
         if( ROW < data_index )
         {
+          if( min_value > data[ROW].value || max_value < data[ROW].value )
+            pass=0;
           switch(COL)
           {
           case 0 :
@@ -79,15 +93,16 @@ class ResultTableView : public Fl_Table {
             sprintf(s,"%lf", data[ROW].value);
             break;
           case 3 :
-            if( min_value <= data[ROW].value && max_value >= data[ROW].value )
+            if( pass )
               sprintf(s,"PASS");
             else
               sprintf(s,"FAIL");
             break;
           }
         }
-        DrawData(s,X,Y,W,H);
+        DrawData(s,X,Y,W,H,pass);
         return;
+      }
       default:
         return;
     }
