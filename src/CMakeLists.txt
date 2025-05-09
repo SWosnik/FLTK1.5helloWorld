@@ -1,1 +1,1 @@
-add_executable       (hello WIN32 MACOSX_BUNDLE hello.cxx)
+add_executable       (DataView WIN32 MACOSX_BUNDLE main.cpp)

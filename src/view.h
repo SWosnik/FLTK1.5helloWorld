@@ -1,18 +1,9 @@
-#include <FL/Fl.H>
-#include <FL/Fl_Double_Window.H>
-#include <FL/Fl_Button.H>
-#include <FL/Fl_Table.H>
-#include <FL/fl_draw.H>
+#ifndef VIEW_H_
+#define VIEW_H_
 
 #define MAX_ROWS 30
 #define MAX_COLS 4
-
-typedef struct
-{
-  int     lfnr;
-  time_t  time;
-  double  value;
-} data_t;
+#include "model.h"
 
 // Derive a class from Fl_Table
 class ResultTableView : public Fl_Table {
@@ -171,30 +162,43 @@ void testCallback(Fl_Widget* widget, void*) {
   //controller get next value
 }
 
-int main(int argc, char **argv) {
-    // Create the main window
-    Fl_Double_Window win(900, 450, "Simple Table");
-    ResultTableView table(10,10,880,380);
-    table.setMinValue(10.0);
-    table.setMaxValue(1234.0);
-    table.addValue(1.234567);
-    table.addValue(12.34567);
-    table.addValue(123.4567);
-    table.addValue(1234.567);
+class View {
+public:
+  View(const char* title=NULL) {
+      // Create the main window
+      win = new Fl_Double_Window (900, 450, title);
+      ResultTableView *table = new ResultTableView(10,10,880,380);
+      table->setMinValue(10.0);
+      table->setMaxValue(1234.0);
+      table->addValue(1.234567);
+      table->addValue(12.34567);
+      table->addValue(123.4567);
+      table->addValue(1234.567);
 
-    // Create a button labeled "test"
-    Fl_Button *btn1 = new Fl_Button(20, 410, 80, 30, "Test");
+      // Create a button labeled "test"
+      Fl_Button *btn1 = new Fl_Button(20, 410, 80, 30, "Test");
 
-    // Create a button labeled "Close"
-    Fl_Button *btn2 = new Fl_Button(120, 410, 80, 30, "Close");
+      // Create a button labeled "Close"
+      Fl_Button *btn2 = new Fl_Button(120, 410, 80, 30, "Close");
 
-    // Set the callback function for the button
-    btn1->callback(testCallback);
-    btn2->callback(closeCallback);
+      // Set the callback function for the button
+      btn1->callback(testCallback);
+      btn2->callback(closeCallback);
 
-    win.end();
-    win.resizable(table);
-    win.show(argc,argv);
-    return(Fl::run());
+      win->end();
+      win->resizable(table);
+    }  // Private constructor
+    ~View() {
+      delete win;
+    } // Private destructor
 
-}
+    void show(int argc, char **argv) {
+      win->show(argc,argv);
+    }
+
+private:
+
+    Fl_Double_Window *win = NULL;
+
+};
+#endif  // VIEW_H_

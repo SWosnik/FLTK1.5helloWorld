@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(hello)
+project(DataView)
 
 if(MINGW)
   message("Building MinGW executable: ${PROJECT_NAME}")
