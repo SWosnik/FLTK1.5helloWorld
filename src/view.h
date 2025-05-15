@@ -1,5 +1,7 @@
-#ifndef VIEW_H_
-#define VIEW_H_
+#include "mvp_interfaces.h"
+
+#ifndef VIEW_H
+#define VIEW_H
 
 #define MAX_ROWS 30
 #define MAX_COLS 4
@@ -7,6 +9,13 @@
 
 // Derive a class from Fl_Table
 class ResultTableView : public Fl_Table {
+
+  typedef struct
+  {
+    int     lfnr;
+    time_t  time;
+    double  value;
+  } data_t;
 
   data_t data[MAX_ROWS];		// data array for cells
   double min_value = 10.0;
@@ -137,12 +146,12 @@ public:
     return max_value;
   }
 
-void addValue(double set_value) {
-    data[data_index].lfnr = next_lfnr;
-    data[data_index].time = time(NULL);
-    data[data_index].value = set_value;
-    data_index++;
-    next_lfnr++;
+  void addValue(double set_value) {
+      data[data_index].lfnr = next_lfnr;
+      data[data_index].time = time(NULL);
+      data[data_index].value = set_value;
+      data_index++;
+      next_lfnr++;
   }
 
 
@@ -150,40 +159,71 @@ private:
   const char* const TableHeadings[MAX_COLS] = { "LFNR", "Time", "Value", "Pass/Fail" };
 };
 
-// Callback function that gets triggered when the close-button is clicked
-void closeCallback(Fl_Widget* widget, void*) {
-    // Close the main window, which will terminate the application
-    Fl_Window* win = (Fl_Window*)widget->window();
-    win->hide();  // Hiding the window triggers FLTK's cleanup
-}
+class View : public IView {
 
-// Callback function that gets triggered when the test-button is clicked
-void testCallback(Fl_Widget* widget, void*) {
-  //controller get next value
-}
+private:
+  IPresenter* presenter;
+  ResultTableView *table = NULL;
+  Fl_Button *btnTest = NULL;
+  Fl_Button *btnClose = NULL;
 
-class View {
 public:
+  void setPresenter(IPresenter* presenter) {
+    this->presenter = presenter;
+  }
+
+  void updateData(const double& data) override {
+      //~ std::cout << "Displaying data: " << data << std::endl;
+    table->addValue(data);
+  }
+
+  void showLoading(bool isVisible) override {
+      //~ std::cout << (isVisible ? "Showing loading..." : "Hiding loading...") << std::endl;
+      // popup "Measurement"
+      // deactivate Buuton(s)
+      if( isVisible )
+      {
+        btnTest->value(0);
+        btnTest->deactivate();
+        btnTest->redraw();
+      }
+      else
+      {
+        btnTest->activate();
+        btnTest->redraw();
+      }
+      table->redraw();
+      win->flush();
+  }
+
+  // Callback function that gets triggered when the close-button is clicked
+  static void closeCallback(Fl_Widget* widget, void*) {
+      // Close the main window, which will terminate the application
+      Fl_Window* win = (Fl_Window*)widget->window();
+      win->hide();  // Hiding the window triggers FLTK's cleanup
+  }
+
+  // Callback function that gets triggered when the test-button is clicked
+  static void testCallback(Fl_Widget* widget, void*) {
+    //controller get next value
+    Presenter* presenter = &Presenter::getInstance();
+    presenter->onUserInput();
+  }
+
   View(const char* title=NULL) {
       // Create the main window
       win = new Fl_Double_Window (900, 450, title);
-      ResultTableView *table = new ResultTableView(10,10,880,380);
-      table->setMinValue(10.0);
-      table->setMaxValue(1234.0);
-      table->addValue(1.234567);
-      table->addValue(12.34567);
-      table->addValue(123.4567);
-      table->addValue(1234.567);
+      table = new ResultTableView(10,10,880,380);
 
       // Create a button labeled "test"
-      Fl_Button *btn1 = new Fl_Button(20, 410, 80, 30, "Test");
+      btnTest = new Fl_Button(20, 410, 80, 30, "Test");
 
       // Create a button labeled "Close"
-      Fl_Button *btn2 = new Fl_Button(120, 410, 80, 30, "Close");
+      btnClose = new Fl_Button(120, 410, 80, 30, "Close");
 
       // Set the callback function for the button
-      btn1->callback(testCallback);
-      btn2->callback(closeCallback);
+      btnTest->callback(testCallback);
+      btnClose->callback(closeCallback);
 
       win->end();
       win->resizable(table);
@@ -196,9 +236,30 @@ public:
       win->show(argc,argv);
     }
 
+    void addValue(double set_value) override {
+      table->addValue(set_value);
+    }
+
+    void setMinValue(double set_value) override {
+      table->setMinValue(set_value);
+    }
+
+    void setMaxValue(double set_value) override {
+      table->setMaxValue(set_value);
+    }
+
+    double getMinValue( void ) override {
+      return table->getMinValue();
+    }
+
+    double getMaxValue( void ) override {
+      return table->getMaxValue();
+    }
+
+
 private:
 
     Fl_Double_Window *win = NULL;
 
 };
-#endif  // VIEW_H_
+#endif  // VIEW_H

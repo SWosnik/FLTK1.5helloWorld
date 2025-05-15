@@ -1,16 +1,23 @@
-#ifndef MODEL_H_
-#define MODEL_H_
+#ifndef MODEL_H
+#define MODEL_H
 
-typedef struct
-{
-  int     lfnr;
-  time_t  time;
-  double  value;
-} data_t;
-
-
-class Model {
+class Model : public IModel {
     // Class definition...
+private:
+    double processedData;
+
+public:
+    void processData( void ) override {
+        // Simulate data processing
+        processedData = 12.34;
+    }
+
+    void onDataProcessed(std::function<void(const double&)> callback) override {
+        // Simulate async processing
+        callback(processedData);
+    }
+
 };
 
-#endif  // MODEL_H_
+#endif  // MODEL_H
+

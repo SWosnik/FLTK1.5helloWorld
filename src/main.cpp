@@ -4,14 +4,26 @@
 #include <FL/Fl_Table.H>
 #include <FL/fl_draw.H>
 
+#include "mvp_interfaces.h"
+#include "presenter.h"
 #include "view.h"
 #include "model.h"
-#include "presenter.h"
 
 
 int main(int argc, char **argv) {
-
+    // Create components
     View* view = new View("Data-Test");
+    Model* model = new Model();
+    Presenter* presenter = &Presenter::getInstance();
+
+    // Set view for presenter
+    presenter->setIView(view);
+    // Set model for presenter
+    presenter->setIModel(model);
+
+    // Set presenter in view
+    view->setPresenter(presenter);
+
     view->show(argc, argv);
 
     return(Fl::run());
