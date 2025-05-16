@@ -2,17 +2,6 @@
 #define PRESENTER_H
 
 
-void my_sleep(unsigned duration)
-{
-    time_t start = time(NULL);
-    double end = duration;
-    time_t now;
-    do {
-        Fl::wait();
-        now = time(NULL);
-    } while (difftime(now, start) < end);
-}
-
 class Presenter : public IPresenter {
 public:
     static Presenter& getInstance() {
@@ -28,10 +17,6 @@ public:
         this->view = view;   // Assignment
         view->setMinValue(10.0);
         view->setMaxValue(1234.0);
-        view->addValue(1.234567);
-        view->addValue(12.34567);
-        view->addValue(123.4567);
-        view->addValue(1234.567);
     }
 
     void setIModel(IModel* model) {
@@ -41,7 +26,6 @@ public:
     void onUserInput( void ) override {
         view->showLoading(true);
         model->processData();
-        my_sleep(3);
         model->onDataProcessed([this](const double& processedData) {
             view->updateData(processedData);
             view->showLoading(false);

@@ -20,7 +20,8 @@ class ResultTableView : public Fl_Table {
   data_t data[MAX_ROWS];		// data array for cells
   double min_value = 10.0;
   double max_value = 20.0;
-  int data_index = 0;
+  int data_index = -1;
+  int data_cnt = 0;
   int next_lfnr = 1;
 
   // Draw the row/col headings
@@ -77,20 +78,26 @@ class ResultTableView : public Fl_Table {
       case CONTEXT_CELL:                        // Draw data in cells
       {
         s[0] = 0;
-        if( ROW < data_index )
+        if( ROW < data_cnt )
         {
-          if( min_value > data[ROW].value || max_value < data[ROW].value )
+          int result_data_index = data_index - 1 - ROW;
+
+          if ( result_data_index < 0 )
+            result_data_index += MAX_ROWS;
+
+          if( min_value > data[result_data_index].value || max_value < data[result_data_index].value )
             pass=0;
+
           switch(COL)
           {
           case 0 :
-            sprintf(s,"%d",data[ROW].lfnr);
+            sprintf(s,"%d",data[result_data_index].lfnr);
             break;
           case 1 :
-            strftime(s, sizeof(s),"%H:%M:%S",localtime(&data[ROW].time));
+            strftime(s, sizeof(s),"%H:%M:%S",localtime(&data[result_data_index].time));
             break;
           case 2 :
-            sprintf(s,"%lf", data[ROW].value);
+            sprintf(s,"%lf", data[result_data_index].value);
             break;
           case 3 :
             if( pass )
@@ -115,6 +122,7 @@ public:
   ResultTableView(int X, int Y, int W, int H, const char *L=0) : Fl_Table(X,Y,W,H,L) {
     // Fill data array
     data_index = 0;
+    data_cnt = 0;
     next_lfnr = 1;
     rows(MAX_ROWS);             // how many rows
     row_header(0);              // disable row headers ()
@@ -150,7 +158,9 @@ public:
       data[data_index].lfnr = next_lfnr;
       data[data_index].time = time(NULL);
       data[data_index].value = set_value;
-      data_index++;
+      data_index = (1+data_index) % MAX_ROWS;
+      if( data_cnt < MAX_ROWS )
+        data_cnt++;
       next_lfnr++;
   }
 
