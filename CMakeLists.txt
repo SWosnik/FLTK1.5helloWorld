@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 project(DataView)
 
+# todo add AddressSanitizer config
+
+
 if(MINGW)
   message("Building MinGW executable: ${PROJECT_NAME}")
   set(CMAKE_CXX_STANDARD_LIBRARIES "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 -static-libgcc -static-libstdc++ -lwsock32 -lws2_32 -static-libgcc -static-libstdc++ -lwsock32 -lws2_32 ${CMAKE_CSS_STANDARD_LIBRARIES}")
@@ -19,8 +22,6 @@ endif ()
 
 find_package(FLTK CONFIG REQUIRED)
 
-
-
 find_package(FLTK 1.5 CONFIG REQUIRED)
 
 add_subdirectory(src)
@@ -29,4 +30,3 @@ add_subdirectory(src)
 
 #set_target_properties(fltk::jpeg PROPERTIES IMPORTED_LOCATION ${FLTK_LIBRARIES}/libfltk_jpeg.a)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${FLTK_LIBRARIES})

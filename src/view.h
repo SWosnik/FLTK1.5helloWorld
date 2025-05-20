@@ -2,7 +2,10 @@
 
 #ifndef VIEW_H
 #define VIEW_H
-
+#include <FL/Fl_Multiline_Output.H>
+#include <string>
+#include <sstream>
+#include <ctime>
 #define MAX_ROWS 30
 #define MAX_COLS 4
 #include "model.h"
@@ -18,8 +21,8 @@ class ResultTableView : public Fl_Table {
   } data_t;
 
   data_t data[MAX_ROWS];		// data array for cells
-  double min_value = 10.0;
-  double max_value = 20.0;
+  double min_value = 0.0;
+  double max_value = 0.0;
   int data_index = -1;
   int data_cnt = 0;
   int next_lfnr = 1;
@@ -85,8 +88,11 @@ class ResultTableView : public Fl_Table {
           if ( result_data_index < 0 )
             result_data_index += MAX_ROWS;
 
-          if( min_value > data[result_data_index].value || max_value < data[result_data_index].value )
-            pass=0;
+          if( min_value != max_value )
+          {
+            if( min_value > data[result_data_index].value || max_value < data[result_data_index].value )
+              pass=0;
+          }
 
           switch(COL)
           {
@@ -176,6 +182,17 @@ private:
   ResultTableView *table = NULL;
   Fl_Button *btnTest = NULL;
   Fl_Button *btnClose = NULL;
+  Fl_Multiline_Output *logOutput = NULL;
+
+
+  // Format timestamp
+  std::string getTimestamp() {
+      time_t now = time(0);
+      tm *ltime = localtime(&now);
+      char timestamp[20];
+      strftime(timestamp, 20, "%Y-%m-%d %H:%M:%S", ltime);
+      return std::string(timestamp);
+  }
 
 public:
   void setPresenter(IPresenter* presenter) {
@@ -185,6 +202,11 @@ public:
   void updateData(const double& data) override {
       //~ std::cout << "Displaying data: " << data << std::endl;
     table->addValue(data);
+  }
+
+  void showMessage( const char* msg ) override {
+  // spaeter Popup
+    log(msg);
   }
 
   void showLoading(bool isVisible) override {
@@ -223,7 +245,11 @@ public:
   View(const char* title=NULL) {
       // Create the main window
       win = new Fl_Double_Window (900, 450, title);
-      table = new ResultTableView(10,10,880,380);
+      table = new ResultTableView(10,10,450,380);
+
+      // Create logOutput widget for logs
+      logOutput = new Fl_Multiline_Output(470, 10, 420, 380);
+      logOutput->readonly(1);
 
       // Create a button labeled "test"
       btnTest = new Fl_Button(20, 410, 80, 30, "Test");
@@ -237,10 +263,18 @@ public:
 
       win->end();
       win->resizable(table);
-    }  // Private constructor
+    }
+
+    void log(const std::string &message) override {
+      std::stringstream ss;
+      ss << "[" << getTimestamp() << "] " << message << "\n";
+      logOutput->append(ss.str().c_str());
+      //~  to do scroll to visible logOutput->xscroll(logOutput->maxsize(), 0);  // Scroll to bottom
+    }
+
     ~View() {
       delete win;
-    } // Private destructor
+    }
 
     void show(int argc, char **argv) {
       win->show(argc,argv);
@@ -251,10 +285,16 @@ public:
     }
 
     void setMinValue(double set_value) override {
+      std::ostringstream oss;
+      oss << "Min value"<< ": " << set_value;
+      log(oss.str());
       table->setMinValue(set_value);
     }
 
     void setMaxValue(double set_value) override {
+      std::ostringstream oss;
+      oss << "Max value"<< ": " << set_value;
+      log(oss.str());
       table->setMaxValue(set_value);
     }
 

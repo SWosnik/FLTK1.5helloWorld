@@ -15,7 +15,8 @@ public:
     virtual double getMinValue( void ) = 0;
     virtual double getMaxValue( void ) = 0;
     virtual void addValue(double set_value) = 0;
-
+    virtual void log(const std::string &message) = 0;
+    virtual void showMessage( const char* msg ) = 0;
 };
 
 class IPresenter {
@@ -30,6 +31,7 @@ public:
     virtual ~IModel() = default;
     virtual void processData( void ) = 0;
     virtual void onDataProcessed(std::function<void(const double&)> callback) = 0;
+    virtual const char* requestConfig(const std::string &id, double &value) = 0;
 };
 
 #endif // MVP_INTERFACES_H

@@ -1,6 +1,8 @@
 #ifndef PRESENTER_H
 #define PRESENTER_H
 
+#include <iostream>
+#include <sstream>
 
 class Presenter : public IPresenter {
 public:
@@ -15,8 +17,32 @@ public:
 
     void setIView(IView* view) {
         this->view = view;   // Assignment
-        view->setMinValue(10.0);
-        view->setMaxValue(1234.0);
+        // model must be load before view
+        if( NULL != model ) {
+          double value;
+
+          const char* response = model->requestConfig("min", value);
+          if( NULL == response ) {
+            std::ostringstream oss;
+            oss << "Set min value"<< ": " << value;
+            view->log(oss.str());
+            view->setMinValue(value);
+          } else {
+            view->showMessage(response);
+          }
+
+          response = model->requestConfig("max", value);
+          if( NULL == response ) {
+            std::ostringstream oss;
+            oss << "Set max value"<< ": " << value;
+            view->log(oss.str());
+            view->setMaxValue(value);
+          } else {
+            view->showMessage(response);
+          }
+        } else {
+          view->showMessage("presenter: set model fefore view");
+        }
     }
 
     void setIModel(IModel* model) {
@@ -25,8 +51,10 @@ public:
 
     void onUserInput( void ) override {
         view->showLoading(true);
+        view->log("Request Data from model");
         model->processData();
         model->onDataProcessed([this](const double& processedData) {
+            view->log("Response Data from model");
             view->updateData(processedData);
             view->showLoading(false);
         });

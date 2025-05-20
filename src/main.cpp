@@ -16,13 +16,17 @@ int main(int argc, char **argv) {
     Model* model = new Model();
     Presenter* presenter = &Presenter::getInstance();
 
-    // Set view for presenter
-    presenter->setIView(view);
     // Set model for presenter
     presenter->setIModel(model);
+    // Set view for presenter
+    presenter->setIView(view);
 
     // Set presenter in view
     view->setPresenter(presenter);
+
+
+    // Example logging messages
+    view->log("Program started");
 
     view->show(argc, argv);
 
