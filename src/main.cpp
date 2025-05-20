@@ -12,6 +12,7 @@
 
 int main(int argc, char **argv) {
     // Create components
+    int retVal = 0;
     View* view = new View("Data-Test");
     Model* model = new Model();
     Presenter* presenter = &Presenter::getInstance();
@@ -30,6 +31,7 @@ int main(int argc, char **argv) {
 
     view->show(argc, argv);
 
-    return(Fl::run());
+    retVal = Fl::run();
 
+    return retVal;
 }

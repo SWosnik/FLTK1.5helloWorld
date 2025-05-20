@@ -210,9 +210,6 @@ public:
   }
 
   void showLoading(bool isVisible) override {
-      //~ std::cout << (isVisible ? "Showing loading..." : "Hiding loading...") << std::endl;
-      // popup "Measurement"
-      // deactivate Buuton(s)
       if( isVisible )
       {
         btnTest->value(0);
