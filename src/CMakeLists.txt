@@ -16,7 +16,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cjson
 )
 
-
 # Modify your copy command to use the runtime output directory
 set(CONFIG_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/config.json"
