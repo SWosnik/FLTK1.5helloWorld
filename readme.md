@@ -1,8 +1,11 @@
-# FLTK1.5helloWorld
+# FLTK1.5 helloWorld
 Build the “hello world” example from FLTK 1.5 under Windows (10) or Debian 12 with cmake.
 
 ## Windows
-Prerequisites: Download the FLTK library and build it with the desired toolchain (MinGW64 or Visual Studio 2019).
+Prerequisites:
+- cmake version 3.27 or higher
+- visual studio 2019 community edition or MinGW64 toolchain (MSYS2 is not required)
+- Download the FLTK library and build it with the desired toolchain (MinGW64 or Visual Studio 2019).
 
 
 ### build with mingw54
