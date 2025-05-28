@@ -60,25 +60,7 @@ public:
         });
     }
 
-private:
-    IView* view = NULL;
-    IModel* model = NULL;
-
-    ~Presenter() override
-    {
-      if( NULL != view )
-        delete view;
-
-      if( NULL != model )
-        delete model;
-    };
-
-
-
-    Presenter() {
-    }
-
-    void onDestroy() override {
+    void cleanup( void ) {
       if( NULL != view )
         delete view;
 
@@ -87,6 +69,25 @@ private:
 
       view = nullptr;
       model = nullptr;
+
+    }
+
+private:
+    IView* view = NULL;
+    IModel* model = NULL;
+
+    ~Presenter() override
+    {
+      cleanup();
+    };
+
+
+
+    Presenter() {
+    }
+
+    void onDestroy() override {
+      cleanup();
     }
 };
 

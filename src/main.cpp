@@ -93,6 +93,7 @@ int main(int argc, char **argv) {
 
     int retVal = Fl::run();
 
+    presenter->cleanup();
     evalMemLeaks();
 
     return retVal;
