@@ -79,8 +79,14 @@ private:
     }
 
     void onDestroy() override {
-        view = nullptr;
-        model = nullptr;
+      if( NULL != view )
+        delete view;
+
+      if( NULL != model )
+        delete model;
+
+      view = nullptr;
+      model = nullptr;
     }
 };
 

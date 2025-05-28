@@ -1,5 +1,5 @@
 # FLTK1.5 helloWorld
-Build the “hello world” example from FLTK 1.5 under Windows (10) or Debian 12 with cmake.
+Build the "hello world"� example from FLTK 1.5 under Windows (10) or Debian 12 with cmake.
 
 ## Windows
 Prerequisites:
