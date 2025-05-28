@@ -41,7 +41,7 @@ public:
             view->showMessage(response);
           }
         } else {
-          view->showMessage("presenter: set model fefore view");
+          view->showMessage("presenter: set model before view");
         }
     }
 

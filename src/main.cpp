@@ -7,6 +7,9 @@
 #if DEBUG
 #include <iostream>
 #include "oakum/oakum_api.h"
+#define ERR_LOG_STREAM std::cout
+#else
+#define ERR_LOG_STREAM //
 #endif
 
 #include "mvp_interfaces.h"
@@ -19,13 +22,13 @@
     {                                                                                              \
         const auto result = (expr);                                                                \
         if (result != OAKUM_SUCCESS) {                                                             \
-            std::cout << "Error: Oakum API error in \"" << #expr << "\" error=" << result << '\n'; \
+            ERR_LOG_STREAM << "Error: Oakum API error in \"" << #expr << "\" error=" << result << '\n'; \
             exit(1);                                                                               \
         }                                                                                          \
     }
 
 void initMemLeakChecker( void ) {
-    std::cout << "Initializing Oakum library\n";
+    ERR_LOG_STREAM << "Initializing Oakum library\n";
     OakumInitArgs initArgs{};
     initArgs.trackStackTraces = true;
     initArgs.threadSafe = false;
@@ -35,32 +38,33 @@ void initMemLeakChecker( void ) {
 }
 
 void evalMemLeaks( void ) {
-    std::cout << "Getting detailed leaks information\n";
+    ERR_LOG_STREAM << "Getting detailed leaks information\n";
     OakumAllocation *allocations{};
     size_t allocationsCount{};
     EXPECT_OAKUM_SUCCESS(oakumGetAllocations(&allocations, &allocationsCount));
     EXPECT_OAKUM_SUCCESS(oakumResolveStackTraceSymbols(allocations, allocationsCount));
     EXPECT_OAKUM_SUCCESS(oakumResolveStackTraceSourceLocations(allocations, allocationsCount));
 
-    std::cout << "Detected " << allocationsCount << " leaks\n";
     for (size_t i = 0; i < allocationsCount; i++) {
         OakumAllocation &allocation = allocations[i];
 
-        std::cout << "  id=" << allocation.allocationId << ", size=" << allocation.size << ", capturedStackFrames=" << allocation.stackFramesCount << '\n';
+        ERR_LOG_STREAM << "  id=" << allocation.allocationId << ", size=" << allocation.size << ", capturedStackFrames=" << allocation.stackFramesCount << '\n';
         for (size_t stackFrameIndex = 0u; stackFrameIndex < allocation.stackFramesCount; stackFrameIndex++) {
             OakumStackFrame &frame = allocation.stackFrames[stackFrameIndex];
-            std::cout << "    " << frame.symbolName;
-            std::cout << " in file " << frame.fileName << ":" << frame.fileLine;
-            std::cout << "\n";
+            ERR_LOG_STREAM << "    " << frame.symbolName;
+            ERR_LOG_STREAM << " in file " << frame.fileName << ":" << frame.fileLine;
+            ERR_LOG_STREAM << "\n";
         }
-        std::cout << '\n';
+        ERR_LOG_STREAM << '\n';
     }
 
-    std::cout << "Cleaning up library resources\n";
+    ERR_LOG_STREAM << "Detected " << allocationsCount << " leaks\n";
+
+    ERR_LOG_STREAM << "Cleaning up library resources\n";
     EXPECT_OAKUM_SUCCESS(oakumReleaseAllocations(allocations, allocationsCount));
     EXPECT_OAKUM_SUCCESS(oakumDeinit(false));
 
-    std::cout << "Press Enter to close this window\n";
+    ERR_LOG_STREAM << "Press Enter to close this window\n";
     std::cin.get(); // do not close console
 }
 
